@@ -3,14 +3,78 @@ from django.views.generic import View,TemplateView,ListView,DetailView,CreateVie
 from django.http import HttpResponse,HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth import authenticate,login,logout
-from .forms import ProfileForm ,ExtendedUserForm,UserForm
+from .forms import ProfileForm ,UserForm
+from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Profile
+from .serializer import ProfileSerializer
+
 # Create your views here.
 
+def update_profile(request):
+    # try:
+    #     profile = request.user.profile
+    #     # print("cccccs")
+    # except Profile.DoesNotExist:
+    #     profile = Profile(user=request.user)
+    #     print(profile.user) 
+        
+    if request.method == 'POST':
+        user_form = UserForm(request.POST, instance=request.user)
+        profile_form = ProfileForm(request.POST, instance=request.user.profile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, ('Your profile was successfully updated!'))
+            # return redirect('settings:profile')
+        else:
+            messages.error(request, ('Please correct the error below.'))
+    else:
+        user_form = UserForm(instance=request.user)
+        profile_form = ProfileForm(instance=request.user.profile)
+        
+    return render(request, 'LoginPage/registration.html', {
+        'user_form': user_form,
+        'profile_form': profile_form
+    })    
+
+    
+class Login(TemplateView):
+    template_name = 'LoginPage/login.html'
+    
+    
+class RegistrationApi(APIView):
+    
+    def post(self, request):
+        try:
+            data = request.data
+            serializer = ProfileSerializer(data = data)
+            
+            if serializer.is_valid():
+                # print(serializer.user)    
+                serializer.save()
+                
+                return Response(
+                    {
+                        'status':200,
+                        'message':'Profile registered',
+                        'data':serializer.data
+                    }
+                )
+                
+            return Response({
+                'status':400,
+                'message':"There was some error",
+                'data' : serializer.errors
+            })
+            
+        except Exception as e:
+            print("error viwes-",e)
+            
+            
 # class Registration(CreateView):
 #     # model = ProfileForm
 #     form_class = ProfileForm    
@@ -19,7 +83,7 @@ from .models import Profile
     
     
 # @login_required
-# def profile(request):
+# def update_profile(request):
     
 #     try:
 #         profile = request.user.profile
@@ -47,35 +111,3 @@ from .models import Profile
         
 #     context = {'form':form,'profile_form':profile_form}
 #     return render(request,'LoginPage/registration.html',context)
-
-
-
-
-def update_profile(request):
-    
-    if request.method == 'POST':
-        user_form = UserForm(request.POST, instance=request.user)
-        profile_form = ProfileForm(request.POST, instance=request.user.profile)
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            messages.success(request, ('Your profile was successfully updated!'))
-            # return redirect('settings:profile')
-        else:
-            messages.error(request, ('Please correct the error below.'))
-    else:
-        user_form = UserForm(instance=request.user)
-        profile_form = ProfileForm(instance=request.user.profile)
-        
-    return render(request, 'LoginPage/registration.html', {
-        'user_form': user_form,
-        'profile_form': profile_form
-    })    
-
-    
-class Login(TemplateView):
-    template_name = 'LoginPage/login.html'
-    
-    
-class EmailApi(APIView):
-    pass

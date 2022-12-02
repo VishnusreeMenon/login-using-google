@@ -62,6 +62,7 @@ class UserForm(forms.ModelForm):
         model = User       
         fields = ('email','username','first_name','last_name')
 
+
 class ProfileForm(forms.ModelForm):
     role = forms.CharField(label="Select your current role:",widget=forms.Select(choices=roles))
     company = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}))
