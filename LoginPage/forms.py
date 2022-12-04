@@ -1,14 +1,11 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile,Trigger
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 roles = [
-    ('role1','Role-1'),
-    ('role2','Role-2'),
-    ('role3','Role-3'),
-    ('role4','Role-4'),
-    ('role5','Role-5'),
+    ('doctor','Doctor'),
+    ('patient','Patient')
     
 ]
 
@@ -71,3 +68,11 @@ class ProfileForm(forms.ModelForm):
         model = Profile       
         fields = ('role','company','intrest')
         # fields = '__all__'
+
+
+class TriggerForm(forms.ModelForm):
+    patient = forms.ModelChoiceField(queryset=User.objects.all())
+    assignment = forms.CharField(widget=forms.Textarea(attrs={'class':'form-control'}))
+    class Meta():
+        model = Trigger
+        fields = ('patient','assignment')

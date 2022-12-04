@@ -22,8 +22,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.Login.as_view(),name = 'Registration'),
     path('',include("allauth.urls")),
-    # path('registration/',views.update_profile,name = 'reg'),
-    path('registration/',views.RegistrationApi.as_view(),name = 'reg'),
+    path('registration/',views.update_profile,name = 'reg'),
+    path('doctor/',views.TriggerFill.as_view(), name = "trigger"),
+    path('patient/',views.ViewAssignments.as_view(), name = "patient"),
+    # path('registration/',views.RegistrationApi.as_view(),name = 'reg'),
     # path('accounts/',include("social_django.urls",namespace='social')),
     # path('registration/',login_required(views.Registration.as_view()),name = 'Registration'),
 ]
